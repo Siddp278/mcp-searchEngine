@@ -41,12 +41,14 @@ pip install -r requirements.txt
 Qdrant is an open source vector database and similarity search engine designed to handle high-dimensional vectors for performance and massive-scale AI applications.
 
 We run the qdrant database inside a docker container to keep the database isolated. You can spin up the database pretty easily using the below command - 
-```bash docker run -p 6333:6333 -p 6334:6334 \
+```bash
+  docker run -p 6333:6333 -p 6334:6334 \
     -v $(pwd)/qdrant_storage:/qdrant/storage \
     qdrant/qdrant
 ```
 
 You can access the database UI with - http://localhost:6333/dashboard#/welcome
+
 ![The dashboard will look like this ](assets/qdrant_dashboard.png)
 
 Once the database is ready, run the python file `create_vectors.py`. This python logic creates vectors from pdf docuemnts of your file (covid research files in my case) and setups a point of reference (collection) in the database, which you can reach to sarch and index later on.
@@ -65,7 +67,11 @@ Check out the `mcp_server.py` file to understand how the MCP server is configure
 
 Testing the MCP server -
 Once the server configuration is set up, we can test if the MCP server is able to pick up the tools are required and if the tools are working as intended through a nodejs application.
-Run the application through shell -  npx @modelcontextprotocol/inspector 
+Run the application through shell -  
+```bash
+npx @modelcontextprotocol/inspector
+```
+
 ![The Inspector dashboard will look like this ](assets/inspector_dashboard.png)
 
 Based on the Network transport type (data transfer) select stdio or sse and connect. If everything is has been st up correctly, then you will be able to connect and and in the tools section upon calling get tools it should show you your tools configured in `mcp_server.py` file. You can try out the tools from there too after selecting the tool.
