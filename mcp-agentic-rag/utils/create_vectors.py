@@ -1,11 +1,4 @@
 # Utilize llama-index and qdrant to develop vectors out of your data.
-"""
-qdrant setup with docker - 
-shell command - docker run -p 6333:6333 -p 6334:6334 \
-    -v $(pwd)/qdrant_storage:/qdrant/storage \
-    qdrant/qdrant
-"""
-
 
 from llama_index.core.node_parser import TokenTextSplitter
 from llama_index.core import SimpleDirectoryReader

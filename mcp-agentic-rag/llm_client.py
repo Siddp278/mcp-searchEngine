@@ -12,7 +12,7 @@ load_dotenv()
 # Create server parameters for stdio connection
 server_params = StdioServerParameters(
     command="python",
-    args=["mcp-server.py"],
+    args=["mcp_server.py"],
     env=None,
 )
 
