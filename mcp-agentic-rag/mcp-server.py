@@ -33,10 +33,12 @@ mcp_server = FastMCP("MCP-RAG-app",
 # The MCP framework uses these type-hints to validate inputs and understand the data types the 
 # tool works with.
 @mcp_server.tool()
-def python_faq_retrieval_tool(query: str) -> str:
+def covid_faq_retrieval_tool(query: str) -> str:
     """
     Retrieve the most relevant documents from the Covid FAQ collection. 
-    Use this tool when the user asks about covid related questions.
+    Use this tool when the user asks about covid related questions. 
+    OR
+    Says `I want the covid FAQ referred`
     
     Args:
         query (str): The user query to retrieve the most relevant documents.
@@ -85,7 +87,7 @@ def crawl_and_extract_text(target_url: str) -> str:
             tag.decompose()
 
         text = soup.get_text(separator=' ', strip=True)
-        return text[:5000] 
+        return text[:600] 
     except Exception as e:
         return f"Error fetching {target_url}: {e}"
 
@@ -127,7 +129,7 @@ def firecrawl_web_search_tool(query: str) -> List[str]:
                 continue
 
             extracted_text = crawl_and_extract_text(page_url)
-            extracted_result.append(f"{extracted_text[:1000]}...")
+            extracted_result.append(f"{extracted_text}...")
 
         return extracted_result if extracted_text else ["I could not find any related information, please check from your own training data"]
     
@@ -135,4 +137,5 @@ def firecrawl_web_search_tool(query: str) -> List[str]:
 if __name__ == "__main__":
     # Start the MCP server
     print(f"Starting MCP server at http://{HOST}:{PORT}")
-    mcp_server.run(transport="sse")
+    # mcp_server.run(transport="sse")
+    mcp_server.run(transport="stdio")
