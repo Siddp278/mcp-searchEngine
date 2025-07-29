@@ -13,11 +13,11 @@ from mcp.server.fastmcp import FastMCP
 load_dotenv()
 
 # Configuration constants
-QDRANT_URL = "http://localhost:6333"
+QDRANT_URL = os.getenv("QDRANT_URL")
 COLLECTION_NAME = "covid-faq"  # Using a new collection for the Python data
 EMBED_MODEL = "nomic-ai/nomic-embed-text-v1.5"
-HOST = "127.0.0.1"
-PORT = 8080
+HOST = os.getenv("HOST")
+PORT = os.getenv("PORT")
 url = os.getenv("FIRECRAWL_URL")
 api_key = os.getenv('FIRECRAWL_API_KEY')
 
@@ -94,7 +94,7 @@ def crawl_and_extract_text(target_url: str) -> str:
 def firecrawl_web_search_tool(query: str) -> List[str]:
     """
     Search for information on a given topic using Firecrawl.
-    Use this tool when the user asks a specific question not related to the Covid FAQ.
+    Use this tool when the user asks a specific question not related to the Covid.
 
     Args:
         query (str): The user query to search for information.
@@ -120,7 +120,7 @@ def firecrawl_web_search_tool(query: str) -> List[str]:
         results = []
     finally:
         extracted_result = []
-        for i, item in enumerate(results):
+        for item in results:
             page_url = item.get("url")
 
             if not page_url:
