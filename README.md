@@ -73,6 +73,7 @@ Based on the Network transport type (data transfer) select stdio or sse and conn
 
 Testing the MCP Client - 
 You can run the client which hosts gpt-4o LLM (since o4-mini doesnt support MCP) with `llm_client.py` file. Currenlty it supports only chat completion, so you can change the prompt in the file and see the MCP server and host running in tandum to formulate the final asnwer using the tools.
+![Final output looks like this](assets/LLM_at_work.png)
 
 - Things to note:
 1. This is just a POC so not production ready, unwarranted actiions or weird exceptions aren't handled yet :)
