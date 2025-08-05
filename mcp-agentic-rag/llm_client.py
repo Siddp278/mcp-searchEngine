@@ -96,15 +96,14 @@ async def run():
                 for f in functions_to_call:
                     print(f"Invoking tool: {f['name']} with args: {f['args']}")
                     result = await session.call_tool(f["name"], arguments=f["args"])
-                    print("🛠️ Tool result:", result.content[0].text[:100])
+                    print("Tool result:", result.content[0].text[:100])
                     tool_results.append({
                         "tool_call_id": f["id"],
                         "output": result.content[0].text
                     })
 
                 print("Sending tool output back to LLM for final response...")
-                final_response = client.complete(
-                    messages=[
+                messages = messages=[
                         {
                             "role": "system",
                             "content": """
@@ -127,7 +126,10 @@ async def run():
                             }
                             for r in tool_results
                         ],
-                    ],
+                    ]
+                
+                final_response = client.complete(
+                    messages=messages,
                     model=model_name,
                     tools=functions,
                     temperature=1.0,
@@ -136,9 +138,10 @@ async def run():
                 )
 
                 print("\nFinal Answer from LLM:")
-                print(final_response.choices[0].message.content)
+                print(final_response.choices[0].message)
 
-            prompt = "When did covid emerge as an epidemic? I want the covid FAQ referred"
+            # prompt = "When did covid emerge as an epidemic? I want the covid FAQ referred"
+            prompt = "Who won the last FIFA world cup?"
             await call_llm(prompt)
 
 if __name__ == "__main__":
