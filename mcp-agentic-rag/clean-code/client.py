@@ -15,11 +15,17 @@ from mcp.client.stdio import stdio_client
 
 from dotenv import load_dotenv
 
+from utils import setup_logger as sl
+
+# Get the logger
+logger = sl.setup_logging("client", log_dir="logs/client")
+
 load_dotenv()
 
 class MCPClient:
     def __init__(self):
         # Initialize session and client objects
+        # logger.debug("Initializing the client")
         self.session: Optional[ClientSession] = None
         self.exit_stack = AsyncExitStack()
         self.token: str = os.getenv("MODEL_API_KEY")
@@ -39,6 +45,8 @@ class MCPClient:
         Args:
             server_script_path: Path to the server script
         """
+        # logger.debug("Connecting to the server")
+        logger.info("Connecting to the server")
         server_params = StdioServerParameters(
             command="python",
             args=[server_script_path],
@@ -68,6 +76,9 @@ class MCPClient:
 
 
     async def process_query(self) -> str:
+        """
+        Processing the query each call in the chat loop
+        """
         tools = await self.listing_tools()
 
         response = await self.client.complete(
@@ -82,6 +93,7 @@ class MCPClient:
         
         result = response.choices[0].message
         self.context.append(result)
+        # logger.debug(f"Conext built until now: {self.context}")
         tool_msgs = []
         if result.tool_calls:
             for tc in (response.choices[0].message.tool_calls or []):
@@ -95,6 +107,7 @@ class MCPClient:
 
         # Continue conversation
         self.context.extend(tool_msgs)
+        # logger.debug(f"Conext built until now: {self.context}")
         follow_up = await self.client.complete(
             messages=self.context,
             model=self.model_name,
@@ -105,6 +118,7 @@ class MCPClient:
 
         result = follow_up.choices[0].message
         self.context.append(result)
+        # logger.debug(f"Conext built until now: {self.context}")
 
         return result.content
 
@@ -112,10 +126,13 @@ class MCPClient:
 
     async def chat_loop(self):
         """Run an interactive chat loop"""
-        print("\nMCP Client Started!")
+        logger.info("\nMCP Client Started!")
+        # logger.debug("\nMCP Client Started!")
         print("Type your queries or 'quit' to exit.")
         
         # try using prompt as a primitive from the server next time
+        # Note - prompts are user controlled, "user action" defines which prompt will be used
+        # to guide the LLM for the result.
         self.context = [
                         {
                             "role": "system",
@@ -146,24 +163,28 @@ class MCPClient:
                             "content": query,
                         })
                 response = await self.process_query()
+                logger.info("Getting response from the LLM")
                 print("\n Final result from the LLM: " + response)
                     
         except Exception as e:
-            print(f"\nError in the chat_loop: {e}")
+            # logger.debug(f"\nError in the chat_loop: {e}")
+            logger.error(f"\nError in the chat_loop: {e}")
         finally:
             await self.cleanup()
 
     
-    async def get_context(self) -> None:
+    async def get_context(self):
         print(self.context)
     
     async def cleanup(self):
         """Clean up resources"""
+        logger.info("Clean up for the session, since chat ability is closed now")
         await self.exit_stack.aclose()
 
 async def main():
     if len(sys.argv) < 3:
-        print("Usage: python client.py <path_to_server_script> <bool_for_getting_history>")
+        # logger.debug("Usage: python client.py <path_to_server_script> <bool_for_getting_history>")
+        logger.error("Usage: python client.py <path_to_server_script> <bool_for_getting_history>")
         sys.exit(1)
         
     client = MCPClient()
@@ -173,7 +194,8 @@ async def main():
         if sys.argv[2] and sys.argv[2]=="True":
             await client.get_context()
     except Exception as e:
-        print(f"\nError: {str(e)}")
+        # logger.debug(f"\nError: {str(e)}")
+        logger.error(f"\nError: {str(e)}")
 
 if __name__ == "__main__":
     import sys

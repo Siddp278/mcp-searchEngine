@@ -213,3 +213,5 @@ qdrant_storage
 covid_data/*
 
 revisit.txt
+
+mcp-agentic-rag/clean-code/logs/*
